@@ -28,7 +28,7 @@ open output/gl_7560_analysis.html
 ## Directory Structure
 
 ```
-├── claude.md                    # This file
+├── CLAUDE.MD                    # This file
 ├── README.md                    # User guide
 ├── run.py                       # Entry point
 ├── src/
