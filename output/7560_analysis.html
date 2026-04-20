@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GL 7560 Analysis Report</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+                background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; 
+                     border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                     padding: 40px; }
+        h1 { color: #1a1a1a; margin-bottom: 10px; }
+        .meta { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                   gap: 20px; margin-bottom: 40px; }
+        .metric { background: #f9f9f9; border-left: 4px solid #2563eb; 
+                  padding: 20px; border-radius: 4px; }
+        .metric-label { color: #666; font-size: 13px; text-transform: uppercase; 
+                       margin-bottom: 8px; }
+        .metric-value { font-size: 28px; font-weight: 600; color: #1a1a1a; }
+        .metric.warning { border-left-color: #f59e0b; }
+        .metric.success { border-left-color: #10b981; }
+        .section { margin-bottom: 40px; }
+        .section-title { font-size: 18px; font-weight: 600; 
+                        color: #1a1a1a; margin-bottom: 20px; 
+                        border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f3f4f6; padding: 12px; text-align: left; 
+             font-weight: 600; border-bottom: 2px solid #e5e7eb; }
+        td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
+        tr:hover { background: #f9fafb; }
+        .confidence-high { background: #d1fae5; color: #065f46; padding: 4px 8px; 
+                          border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .confidence-medium { background: #fef3c7; color: #92400e; padding: 4px 8px;
+                            border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .confidence-low { background: #fee2e2; color: #7f1d1d; padding: 4px 8px;
+                         border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .amount { font-family: 'Monaco', 'Courier New', monospace; 
+                  text-align: right; font-weight: 500; }
+        .advisory { background: #eff6ff; border-left: 4px solid #2563eb; 
+                   padding: 20px; border-radius: 4px; line-height: 1.6; color: #1e40af; }
+        .no-data { color: #999; font-style: italic; padding: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GL 7560 Budget Analysis Report</h1>
+        <div class="meta">
+            <strong>Generated:</strong> 2026-04-20 14:53:28<br>
+            <strong>GL Code:</strong> GL 7560
+        </div>
+        
+        <div class="metrics">
+            <div class="metric">
+                <div class="metric-label">Total Actuals</div>
+                <div class="metric-value">$320,788.49</div>
+            </div>
+            <div class="metric warning">
+                <div class="metric-label">Excluded Amount</div>
+                <div class="metric-value">$6,568.70</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Scrubbed Baseline</div>
+                <div class="metric-value">$327,357.19</div>
+            </div>
+            <div class="metric warning">
+                <div class="metric-label">Contingency (30%)</div>
+                <div class="metric-value">$1,970.61</div>
+            </div>
+            <div class="metric success">
+                <div class="metric-label">Adjusted Budget</div>
+                <div class="metric-value">$325,386.58</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Exclusion Details (Path B)</div>
+            
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Confidence</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            <tr>
+                <td>2025-02-21</td>
+                <td>Mustafa Puri reimbursement of CPA Annual Dues</td>
+                <td class="amount">$-102.68</td>
+                <td><span class="confidence-medium">Medium</span></td>
+            </tr>
+            
+            <tr>
+                <td>2025-02-06</td>
+                <td>Kyungmi (Mia) Li rem reimbursement of CPA dues and modules</td>
+                <td class="amount">$-187.62</td>
+                <td><span class="confidence-medium">Medium</span></td>
+            </tr>
+            
+            <tr>
+                <td>2025-01-29</td>
+                <td>Megan Mohoruk reimbursement of CPA Dues</td>
+                <td class="amount">$-261.24</td>
+                <td><span class="confidence-medium">Medium</span></td>
+            </tr>
+            
+            <tr>
+                <td>2025-01-03</td>
+                <td>Charlene Zheng rembursement of CPA modules and dues</td>
+                <td class="amount">$-278.75</td>
+                <td><span class="confidence-low">Low</span></td>
+            </tr>
+            
+            <tr>
+                <td>2025-03-24</td>
+                <td>Mehr Hajiani reimbursement of CPA PEP Annual Dues</td>
+                <td class="amount">$-278.75</td>
+                <td><span class="confidence-medium">Medium</span></td>
+            </tr>
+            
+            <tr>
+                <td>2024-09-13</td>
+                <td>Hauder Abrar reimbursment of CPA dues and modules</td>
+                <td class="amount">$-371.67</td>
+                <td><span class="confidence-low">Low</span></td>
+            </tr>
+            
+            <tr>
+                <td>2024-10-04</td>
+                <td>Garima Shrestha reimbursment of CPA dues and course</td>
+                <td class="amount">$-517.50</td>
+                <td><span class="confidence-low">Low</span></td>
+            </tr>
+            
+            <tr>
+                <td>2025-04-15</td>
+                <td>Nico Hernandez reimbursement of CPA Dues</td>
+                <td class="amount">$-952.38</td>
+                <td><span class="confidence-medium">Medium</span></td>
+            </tr>
+            
+            <tr>
+                <td>2025-01-03</td>
+                <td>Trystan Jordan rembursement of claw back, CPA dues and sign on bonus</td>
+                <td class="amount">$-1,028.75</td>
+                <td><span class="confidence-low">Low</span></td>
+            </tr>
+            
+            <tr>
+                <td>2024-06-18</td>
+                <td>Jenny Guan reimbursment for CPA membership expense correction</td>
+                <td class="amount">$-1,035.00</td>
+                <td><span class="confidence-low">Low</span></td>
+            </tr>
+            
+            <tr>
+                <td>2025-04-25</td>
+                <td>Grandy Purdy reimbursement of CPA and CBV Dues</td>
+                <td class="amount">$-1,554.36</td>
+                <td><span class="confidence-medium">Medium</span></td>
+            </tr>
+            
+            </tbody>
+        </table>
+        
+        </div>
+        
+        <div class="section">
+            <div class="advisory">
+                <strong>Budget Recommendation:</strong><br><br>
+                For the new year, recommend a budget of <strong>$325,386.58</strong>.<br>
+                This accounts for the $6,568.70 in one-time recoveries from last year
+                and reserves $1,970.61 (30% contingency) for anticipated departures.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

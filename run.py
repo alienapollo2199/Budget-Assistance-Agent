@@ -86,7 +86,7 @@ def main():
         
         # Export to HTML
         exporter = HTMLExporter('output')
-        html_path = exporter.export(analysis, gl_code)
+        html_path = exporter.export(analysis, gl_code, f"{gl_code}_analysis.html")
         print(f"✓ Generated report: {html_path}")
         
         # Print summary
