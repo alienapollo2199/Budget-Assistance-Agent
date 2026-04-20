@@ -1,210 +1,146 @@
-# Budget Assistant - GL Account Analysis Framework
+# Budget Assistant Agent
 
-## Project Overview
+Multi-GL budget guidance system: analyze 115+ GL accounts across 124 BUs to generate HTML budget recommendations for the new fiscal year.
 
-**Budget Assistant** is a specialized framework for analyzing General Ledger (GL) accounts to scrub historical data and create clean baselines for budget planning. It implements domain-specific analysis skills for different GL accounts using a consistent pattern detection methodology.
+## Overview
 
-## Supported GL Accounts
+Uses **two-path pattern detection** to distinguish one-time events (reimbursements, recoveries) from recurring costs:
+- **Path A (Keep)**: Reversals, corrections, accrual reversals → KEEP in baseline
+- **Path B (Exclude)**: Reimbursements, refunds, paybacks → EXCLUDE from baseline (non-recurring)
 
-### GL 7560: Professional Membership Dues
-- **Description**: CPA, CFA, CBV professional memberships and designations
-- **Primary Driver**: Employee Headcount / Professional Designations
-- **Skill File**: [GL7560_ProfessionalDues_Skill.md](docs/GL7560_ProfessionalDues_Skill.md)
-- **Analysis Script**: `src/gl7560_analysis.py` (via `run.py GL7560 <filename>`)
+**Recommended Budget** = Total Actuals − Exclusions − (30% contingency for departures)
 
-### GL 7555: Professional Courses, Pre Designation
-- **Description**: Pre-designation training, courses, and professional development
-- **Primary Driver**: Employee Development / Training Programs
-- **Skill File**: [GL7555_ProfessionalCourses_Skill.md](docs/GL7555_ProfessionalCourses_Skill.md)
-- **Analysis Script**: `src/gl7555_analysis.py` (via `run.py GL7555 <filename>`)
+## Quick Start
 
----
+```bash
+pip install -r requirements.txt
+
+# Analyze GL 7560
+python run.py GL7560 data/SampleTransactions.xlsx
+
+# List all enabled GLs
+python run.py --list-gls
+
+# Open generated HTML report
+open output/gl_7560_analysis.html
+```
 
 ## Directory Structure
 
 ```
-GL7560/
-├── claude.md                          # This file - project guide
-├── README.md                          # Quick start guide
-├── run.py                             # Main entry point
-│
-├── src/                               # Source code
-│   ├── __init__.py
-│   ├── analyzer.py                    # Core analysis engine
-│   ├── gl7560_analysis.py             # GL 7560 specific logic
-│   └── gl7555_analysis.py             # GL 7555 specific logic
-│
-├── docs/                              # Documentation
-│   ├── GL7560_ProfessionalDues_Skill.md        # GL 7560 skill & logic
-│   └── GL7555_ProfessionalCourses_Skill.md     # GL 7555 skill & logic
-│
-├── data/                              # Input data (sample Excel files)
-│   ├── SampleTransactions.xlsx
-│   └── SampleTransactions2.xlsx
-│
-├── output/                            # Analysis results
-│   └── analysis_output.txt            # Latest analysis report
-│
-├── tests/                             # Test suite
-│   └── gl_7560_test/
-│
-└── .venv/                             # Python virtual environment
-    ├── Scripts/                       # Executables & pip
-    ├── Lib/                           # Installed packages
-    └── pyvenv.cfg                     # Environment config
+├── claude.md                    # This file
+├── README.md                    # User guide
+├── run.py                       # Entry point
+├── src/
+│   ├── analyzer.py              # Core analysis engine
+│   ├── gl_registry.py           # Load GL rules from JSON
+│   └── html_exporter.py         # Generate HTML reports
+├── gl_rules/                    # GL definitions (JSON)
+│   ├── gl_7560.json
+│   ├── gl_7555.json
+│   └── ...                      # (115 GLs total)
+├── data/
+│   └── SampleTransactions.xlsx  # Sample input
+├── output/                      # Generated HTML reports
+└── .claude/
+    └── skills/budget-guidance/  # Claude Code skill
 ```
 
----
+## How It Works
 
-## Core Analysis Logic
+### GL Rules (JSON)
 
-Both GL accounts follow the same **two-path detection framework**:
+Define each GL's analysis rules in `gl_rules/gl_XXXX.json`:
 
-### Path A: Reversals & Corrections (KEEP)
-- Keywords: `Accrual Rev`, `Reversal`, `JE Correction`, `Cancel`
-- Action: Do NOT exclude (used to net entries to zero)
-
-### Path B: Reimbursements & Paybacks (EXCLUDE)
-- Keywords: `reimburse` (variants), `payback`, `recovery`, `settlement`, `claw back`
-- Action: Exclude from baseline (one-time recovery events)
-- **Priority**: Path B takes precedence if both patterns detected
-
----
-
-## Output Metrics
-
-Every analysis report includes:
-
-1. **Total Actuals** - Raw sum of all transactions
-2. **Exclusion List** - Path B items with confidence ratings (High/Medium/Low)
-3. **Scrubbed Baseline** - Total minus Path B exclusions
-4. **Future Departure Contingency** - 30% of exclusion total
-5. **Adjusted Budget Baseline** - Scrubbed baseline minus contingency (recommended budget)
-6. **Budget Advisory** - Narrative summary for stakeholders
-
----
-
-## Quick Start
-
-### Setup (One-time)
-```powershell
-# Activate virtual environment (do NOT reinstall pip)
-& .\.venv\Scripts\Activate.ps1
+```json
+{
+  "code": "XXXX",
+  "name": "GL Account Name",
+  "cost_driver": "What drives costs",
+  "path_a": {
+    "keywords": ["reversal", "correction"],
+    "action": "KEEP"
+  },
+  "path_b": {
+    "keywords": ["reimburse", "refund"],
+    "action": "EXCLUDE"
+  },
+  "confidence_criteria": {
+    "HIGH": "Clear keyword + employee name",
+    "MEDIUM": "Keyword present, missing context",
+    "LOW": "Generic entry, ambiguous"
+  },
+  "contingency_buffer_pct": 0.30,
+  "enabled": true
+}
 ```
 
-### Run Analysis
-```powershell
-# GL 7560 - Professional Membership Dues
-python run.py SampleTransactions.xlsx
+### Analysis Process
 
-# GL 7555 - Professional Courses (when implemented)
-python run.py GL7555 SampleTransactions.xlsx
+1. Load GL rules from JSON (only relevant GL loads)
+2. Read Excel file with columns: Voucher Date, Voucher Desc, Amount
+3. Identify negative amounts (Path A/B candidates)
+4. Pattern match against keywords/regex
+5. Apply priority: Path B takes precedence if both match
+6. Calculate metrics: total, exclusions, contingency, adjusted budget
+7. Generate interactive HTML report
+
+### HTML Output
+
+Each report includes:
+- **Key Metrics**: Total actuals, exclusions, scrubbed baseline, adjusted budget
+- **Exclusion Table**: Detailed list with confidence ratings (High/Medium/Low)
+- **Budget Recommendation**: Suggested budget for next fiscal year
+- **Contingency Analysis**: Reserve for expected departures
+
+## Adding a New GL (Scaling to 115+)
+
+### Simple: Add JSON rule file (2 minutes)
+
+```bash
+cat > gl_rules/gl_XXXX.json << 'EOF'
+{
+  "code": "XXXX",
+  "name": "Your GL Name",
+  "path_a": { "keywords": ["reversal", ...] },
+  "path_b": { "keywords": ["reimburse", ...] },
+  "contingency_buffer_pct": 0.30
+}
+EOF
 ```
 
-### View Results
-```powershell
-# Display the analysis output
-Get-Content .\output\analysis_output.txt
-```
+Done. `gl_registry.py` auto-loads it, and `run.py` can analyze immediately.
 
----
+### Advanced: Custom analyzer (if GL needs special logic)
 
-## Development Workflow
+1. Create `src/glxxxx_analyzer.py`
+2. Inherit from `BaseGLAnalyzer`
+3. Override `analyze()` method
+4. Update `run.py` routing
 
-### Adding a New GL Account Skill
+## Code Standards
 
-1. **Create Skill Documentation**
-   ```
-   docs/GL{CODE}_{Name}_Skill.md
-   ```
-   - Define Path A & B patterns
-   - Document confidence level criteria
-   - Specify output requirements
+- **Python**: PEP 8, keep functions focused
+- **No comments** unless logic is non-obvious
+- **JSON rules**: Define GL logic here, not in code
+- **Error handling**: Graceful failures with clear messages
 
-2. **Implement Analysis Module**
-   ```
-   src/gl{code}_analysis.py
-   ```
-   - Inherit from `analyzer.py` base class
-   - Implement account-specific pattern matching
-   - Generate formatted report
+## Key Modules
 
-3. **Update `run.py`**
-   - Add GL code routing logic
-   - Map to new analysis module
+| Module | Purpose |
+|--------|---------|
+| `analyzer.py` | Core pattern matching (don't modify unless needed) |
+| `gl_registry.py` | Load GL rules from JSON files |
+| `html_exporter.py` | Generate interactive HTML reports |
+| `run.py` | Agent entry point, GL routing |
 
-4. **Add Tests**
-   ```
-   tests/gl_{code}_test/
-   ```
+## Confidence Levels
 
-### Code Style & Standards
+- **HIGH**: Explicit keyword + employee name (high confidence exclusion)
+- **MEDIUM**: Keyword present, missing employee context (medium confidence)
+- **LOW**: Generic entry, ambiguous description (flag for manual review)
 
-- **Python**: PEP 8 compliance via `black` formatter
-- **Pandas**: Use DataFrame operations for scalability
-- **Regex**: Comment complex patterns, use verbose flag when appropriate
-- **Documentation**: Docstrings for all functions, inline comments for business logic
-- **Error Handling**: Graceful failures with informative error messages
+## Dependencies
 
----
-
-## Key Concepts
-
-### Confidence Levels
-- **High**: Explicit employee name + clear reimbursement descriptor
-- **Medium**: "Reimburse" keyword present but lacks employee context
-- **Low**: Generic negative entry, ambiguous description (flag for manual review)
-
-### Contingency Buffer
-- Calculated as 30% of total exclusions
-- Reserves funds for expected future employee departures
-- Subtracted from scrubbed baseline to yield adjusted budget
-
-### Priority Rules
-- Reimbursement patterns override reversal/correction patterns
-- All negative amounts are analyzed for both Path A & B
-- Exclusions only applied to Path B items
-
----
-
-## Example Workflow
-
-**Input**: Excel file with GL transactions
-```
-Date | Reference | Description | Amount
------|-----------|-------------|--------
-2025-02-21 | 3880652 | Mark Smith reimbursement of CPA Dues | -102.68
-2025-04-01 | 3937093 | Annual CPA Practice License Renewal | +81.25
-...
-```
-
-**Processing**:
-1. Load transactions
-2. Scan for negative amounts
-3. Pattern match against Path A (reversals) and Path B (reimbursements)
-4. Apply priority rule: Path B wins if both detected
-5. Calculate metrics and confidence levels
-
-**Output**: Formatted report with 6 key sections
-
----
-
-## Environment Details
-
-- **Python**: 3.11+
-- **Dependencies**: pandas, openpyxl, regex
-- **Virtual Environment**: `.venv/` (pre-configured, do NOT reinstall)
-- **Activation**: 
-  ```powershell
-  & .\.venv\Scripts\Activate.ps1
-  ```
-
----
-
-## Support
-
-For questions about specific GL account skills, refer to:
-- `docs/GL7560_ProfessionalDues_Skill.md`
-- `docs/GL7555_ProfessionalCourses_Skill.md`
-
-For code issues or enhancements, review the implementation in `src/`.
+- Python 3.11+
+- pandas, openpyxl, regex (see `requirements.txt`)

@@ -1,0 +1,25 @@
+{
+  "code": "7560",
+  "name": "Professional Membership Dues",
+  "description": "CPA, CFA, CBV professional memberships and designations",
+  "cost_driver": "Employee Headcount / Professional Designations",
+  "enabled": true,
+  "path_a": {
+    "name": "Reversals & Corrections (KEEP)",
+    "keywords": ["accrual rev", "reversal", "je correction", "cancel", "correction"],
+    "action": "KEEP"
+  },
+  "path_b": {
+    "name": "Reimbursements & Paybacks (EXCLUDE)",
+    "keywords": ["reimburse", "payback", "recovery", "settlement", "claw back"],
+    "regex_patterns": ["re[i]?mbu[r]?s[e]?m?ent?"],
+    "action": "EXCLUDE"
+  },
+  "confidence_criteria": {
+    "HIGH": "Explicit employee name + clear reimbursement descriptor",
+    "MEDIUM": "Reimbursement keyword present but lacks employee context",
+    "LOW": "Generic negative entry, ambiguous description"
+  },
+  "contingency_buffer_pct": 0.30,
+  "notes": "Priority: Path B takes precedence if both patterns detected"
+}

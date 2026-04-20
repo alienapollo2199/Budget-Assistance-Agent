@@ -1,0 +1,25 @@
+{
+  "code": "7555",
+  "name": "Professional Courses & Pre-Designation Training",
+  "description": "Pre-designation training, courses, and professional development",
+  "cost_driver": "Employee Development / Training Programs",
+  "enabled": true,
+  "path_a": {
+    "name": "Reversals & Corrections (KEEP)",
+    "keywords": ["accrual rev", "reversal", "je correction", "cancel", "correction"],
+    "action": "KEEP"
+  },
+  "path_b": {
+    "name": "Reimbursements & Refunds (EXCLUDE)",
+    "keywords": ["reimburse", "refund", "return", "recovery", "reversal of training"],
+    "regex_patterns": ["re[i]?mbu[r]?s[e]?m?ent?", "refund"],
+    "action": "EXCLUDE"
+  },
+  "confidence_criteria": {
+    "HIGH": "Course code + employee name + reimbursement keyword",
+    "MEDIUM": "Reimbursement keyword + course reference",
+    "LOW": "Generic refund entry without context"
+  },
+  "contingency_buffer_pct": 0.30,
+  "notes": "Focus on training programs that are repeatable vs one-time events"
+}

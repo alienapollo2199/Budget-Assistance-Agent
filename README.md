@@ -1,70 +1,75 @@
-# Budget Assistant
+# Budget Assistant Agent
 
-**Professional GL Account Analysis** – Scrub historical ledger data to create clean budgeting baselines.
+**Multi-GL Budget Guidance** – Analyze 115+ GL accounts to generate budget recommendations for the new fiscal year.
 
-*Budget Assistant* analyzes General Ledger accounts to identify exclusions and reimbursements, generating clean baselines for next year's budget planning.
-
-## Supported GL Accounts
-
-| GL Code | Description | Driver |
-|---------|-------------|--------|
-| **7560** | Professional Membership Dues | Headcount / Designations |
-| **7555** | Professional Courses, Pre Designation | Employee Development |
+Budget Assistant analyzes historical GL transactions to distinguish one-time events (reimbursements, recoveries) from recurring costs, generating **interactive HTML reports** with budget recommendations across all GL accounts.
 
 ## Quick Start
 
-### 1. Activate Environment
-```powershell
-& .\.venv\Scripts\Activate.ps1
+### Install
+```bash
+pip install -r requirements.txt
 ```
 
-### 2. Run Analysis
-```powershell
-python run.py SampleTransactions.xlsx
+### Run Analysis
+```bash
+# Analyze GL 7560 (Professional Membership Dues)
+python run.py GL7560 data/SampleTransactions.xlsx
+
+# View HTML report
+open output/gl_7560_analysis.html
 ```
 
-### 3. View Results
-```powershell
-Get-Content .\output\analysis_output.txt
+### List Available GLs
+```bash
+python run.py --list-gls
 ```
 
-## Key Metrics
+## Supported GL Accounts
 
-Every analysis report provides:
-- **Total Actuals** – Raw sum of all transactions
-- **Scrubbed Baseline** – After removing reimbursements (Path B)  
-- **Exclusion List** – Items removed with confidence ratings
-- **30% Contingency Buffer** – Reserve for expected departures
-- **Adjusted Budget Baseline** – Final recommended budget
+| GL Code | Description | Cost Driver |
+|---------|-------------|-------------|
+| **7560** | Professional Membership Dues | Employee Headcount |
+| **7555** | Professional Courses & Training | Employee Development |
+| **...** | (115+ GL accounts) | Various |
+
+## How It Works
+
+The agent uses **two-path pattern detection**:
+
+- **Path A (Keep)**: Reversals, corrections, accrual reversals
+- **Path B (Exclude)**: Reimbursements, refunds, recoveries (one-time events)
+
+**Recommended Budget** = Total Actuals - Exclusions - (30% contingency for departures)
+
+## Output
+
+Interactive HTML reports (`output/gl_XXXX_analysis.html`) include:
+
+- **Key Metrics**: Total actuals, exclusions, scrubbed baseline, adjusted budget
+- **Exclusion Table**: Details of excluded items with confidence levels
+- **Budget Recommendation**: Suggested budget for next fiscal year
+- **Contingency Analysis**: Reserve calculation for expected departures
+
+## Project Structure
+
+```
+src/               – Analysis engine, GL registry, HTML exporter
+gl_rules/          – GL-specific rules (JSON) - scales to 115+ accounts
+.claude/skills/    – Claude Code skill definitions
+data/              – Sample input files
+output/            – Generated HTML reports
+```
+
+## Token Efficiency
+
+GL rules are stored as **JSON** (not code), enabling the agent to:
+- Load only relevant GL rules when analyzing
+- Scale to 115+ GL accounts without token bloat
+- Keep agent context focused and responsive
 
 ## Documentation
 
-- **[claude.md](claude.md)** – Full project guide, architecture, and development workflow
-- **[docs/GL7560_ProfessionalDues_Skill.md](docs/GL7560_ProfessionalDues_Skill.md)** – GL 7560 analysis logic
-- **[docs/GL7555_ProfessionalCourses_Skill.md](docs/GL7555_ProfessionalCourses_Skill.md)** – GL 7555 analysis logic
-
-## Analysis Workflow
-
-Both accounts implement a **two-path detection framework**:
-
-| Path | Type | Keywords | Action |
-|------|------|----------|--------|
-| **A** | Reversals | Reversal, JE Correction, Accrual Rev, Cancel | KEEP in baseline |
-| **B** | Reimbursements | Reimburse, Payback, Recovery, Settlement | EXCLUDE from baseline |
-
-Priority: If both patterns found, **Path B takes precedence**.
-
-## Directory Structure
-
-```
-src/                 – Core analysis modules (analyzer.py, gl7560/7555_analysis.py)
-docs/                – Skill documentation (GL7560, GL7555)
-data/                – Input Excel files
-output/              – Analysis reports
-tests/               – Test suite
-```
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on adding new GL accounts or extending existing skills.
+- **[claude.md](claude.md)** – Architecture, adding new GLs, code standards
+- **[run.py](run.py)** – Agent entry point and routing logic
 
